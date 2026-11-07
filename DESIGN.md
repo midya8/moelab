@@ -3,7 +3,7 @@
 Sparse (Switch-style) mixture-of-experts, dependency-free.
 
 - data.py: four regimes; input = regime center + Gaussian noise; target =
-  regime-specific linear map. A single shared map cannot fit it at any width.
+  regime-specific linear map. A single shared linear map cannot fit it (width does not extend a linear model); dense nonlinear baselines are compared empirically in eval.py.
 - moe.py: router softmax + linear experts. Trained prediction is
   g_top * expert_top(x) (argmax straight-through). Gradients derived by hand:
   dL/dw_e = s g_e x, dL/dz_k = s y_e g_e (delta_ek - g_k), load-balance aux
