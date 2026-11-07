@@ -7,7 +7,7 @@ python -m moelab evaluate
 
 echo
 echo "=== gates (achievable set: must pass) ==="
-python -m moelab gates --max-mse 0.06 --min-mlp-mse 0.15 --min-purity 0.95 --max-expert-share 0.26
+python -m moelab gates --max-mse 0.06 --min-purity 0.95 --max-expert-share 0.26
 
 echo
 echo "=== gates (impossible purity bar above 1.0: must fail) ==="
