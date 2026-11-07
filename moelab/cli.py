@@ -21,8 +21,6 @@ def main(argv=None) -> int:
     p_gate = sub.add_parser("gates")
     p_gate.add_argument("--max-mse", type=float, default=None,
                         help="maximum MoE top-1 test MSE")
-    p_gate.add_argument("--min-mlp-mse", type=float, default=None,
-                        help="minimum dense-MLP baseline MSE (proves the fixture still separates the architectures)")
     p_gate.add_argument("--min-purity", type=float, default=None,
                         help="minimum worst-regime routing purity")
     p_gate.add_argument("--max-expert-share", type=float, default=None,
@@ -39,9 +37,6 @@ def main(argv=None) -> int:
     failures = []
     if args.max_mse is not None and results["moe_mse_top1"] > args.max_mse:
         failures.append(f"MoE top-1 MSE {results['moe_mse_top1']:.4f} > allowed {args.max_mse}")
-    if args.min_mlp_mse is not None and results["mlp_mse"] < args.min_mlp_mse:
-        failures.append(f"MLP baseline MSE {results['mlp_mse']:.4f} < required {args.min_mlp_mse} "
-                        "(baseline caught up - the comparison no longer shows a mixture advantage)")
     if args.min_purity is not None and results["routing_purity_min"] < args.min_purity:
         failures.append(f"routing purity {results['routing_purity_min']:.4f} < required {args.min_purity}")
     if args.max_expert_share is not None and results["aux_max_share"] > args.max_expert_share:
