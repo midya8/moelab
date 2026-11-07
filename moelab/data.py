@@ -2,7 +2,7 @@
 
 Inputs are cluster centers (one per regime) plus seeded Gaussian noise; the
 target is that regime's own linear function of the input. A single linear map
-cannot represent the data at any width, because the sign and scale of the
+cannot represent the data, because the sign and scale of the
 input-target relationship flips per regime; a mixture with a router can.
 """
 
