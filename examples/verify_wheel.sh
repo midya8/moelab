@@ -17,7 +17,7 @@ import moelab
 from moelab.routes import audit
 root=pathlib.Path(moelab.__file__).parent/'route_data'
 f=json.loads((root/'frozen.json').read_text());r=json.loads(pathlib.Path('regenerated/frozen.json').read_text());assert f==r
-w=json.loads(gzip.decompress((root/'witnesses.json.gz').read_bytes()));v=json.loads(gzip.decompress(pathlib.Path('regenerated/witnesses.json.gz').read_bytes()));assert w==v;assert len(w)==32
+w=json.loads(gzip.decompress((root/'3-witnesses.json.gz').read_bytes()));v=json.loads(gzip.decompress(pathlib.Path('regenerated/3-witnesses.json.gz').read_bytes()));assert w==v;assert len(w)==32
 assert json.load(open('evaluate.json'))==f['original_report']==json.load(open('demo.json'))['original_report']
 assert 'All gates passed' in open('gates.txt').read()
 pathlib.Path('input.json').write_text(json.dumps(f['controls']['jump']))
