@@ -94,7 +94,7 @@ def write(path):
     p=Path(path);p.parent.mkdir(parents=True,exist_ok=True);f=build()
     p.write_text(json.dumps(f,separators=(',',':'),sort_keys=True,allow_nan=False)+'\n')
     w=witnesses(f)
-    (p.parent/'witnesses.json.gz').write_bytes(gzip.compress(json.dumps(w,separators=(',',':'),sort_keys=True,allow_nan=False).encode(),mtime=0))
+    (p.parent/'3-witnesses.json.gz').write_bytes(gzip.compress(json.dumps(w,separators=(',',':'),sort_keys=True,allow_nan=False).encode(),mtime=0))
     return {'models':len(f['models']),'witnesses':len(w),'original_report':f['original_report']}
 
 
