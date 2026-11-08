@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "moelab"
-version = "0.1.0"
+version = "0.2.0"
 description = "Mixture-of-experts from scratch with measured routing, specialization, and load balance"
 readme = "README.md"
 license = {text = "MIT"}
@@ -12,3 +12,6 @@ requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 include = ["moelab*"]
+
+[tool.setuptools.package-data]
+moelab = ["route_data/*.json", "route_data/*.json.gz"]
