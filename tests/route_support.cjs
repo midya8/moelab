@@ -1,0 +1,5 @@
+'use strict';const fs=require('node:fs'),zlib=require('node:zlib'),path=require('node:path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'../moelab/route_data'),frozen=JSON.parse(fs.readFileSync(path.join(root,'frozen.json'),'utf8')),witnesses=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'witnesses.json.gz'))));
+function payload(m){return m.control?frozen.controls[m.control]:{model:frozen.models[m.model],origin:frozen.splits.original_train[m.start].x,destination:frozen.splits.original_train[m.end].x,evaluation:frozen.splits}}
+function equal(a,b,p='root'){if(typeof a==='number'){assert.equal(typeof b,'number',p);assert.ok(Math.abs(a-b)<=1e-12+1e-12*Math.max(Math.abs(a),Math.abs(b)),`${p}: ${a} != ${b}`)}else if(a&&typeof a==='object'){assert.equal(Array.isArray(a),Array.isArray(b),p);assert.deepEqual(Object.keys(a).sort(),Object.keys(b).sort(),p);for(const k of Object.keys(a))equal(a[k],b[k],p+'.'+k)}else assert.equal(a,b,p)}
+module.exports={frozen,witnesses,payload,equal};
