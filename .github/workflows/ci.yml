@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: node --test tests/test_routes.cjs tests/test_routes_browser.cjs tests/test_capacity.cjs tests/test_capacity_browser.cjs
+      - run: node --test tests/test_routes.cjs tests/test_routes_browser.cjs tests/test_capacity.cjs tests/test_capacity_browser.cjs tests/test_gate.cjs tests/test_gate_browser.cjs
   package:
     runs-on: ubuntu-latest
     steps:
@@ -37,3 +37,4 @@ jobs:
           python-version: '3.10'
       - run: bash examples/verify_wheel.sh
       - run: bash examples/verify_capacity_wheel.sh
+      - run: bash examples/verify_gate_wheel.sh
