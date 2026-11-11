@@ -9,7 +9,7 @@ DIM, E, LR, EPS = 16, 4, 1e-3, 1e-7
 class TestSparseGradients(unittest.TestCase):
     """Finite-difference verification of the hand-derived sparse-MoE gradients.
 
-    Task loss: (g_top * expert_top(x) - t)^2 with straight-through argmax.
+    Task loss: (g_top * expert_top(x) - t)^2 on a fixed routing branch.
     Aux loss:  E * sum_k g_k^2 (load balancing).
     """
 
