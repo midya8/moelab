@@ -1,6 +1,6 @@
 """Measured MoE evaluation: regime-fit, routing specialization, load balance.
 
-Trains on the regime-switching fixture: a soft-gated mixture, the same mixture
+Trains on the regime-switching fixture: a retained-probability top-1 mixture, the same mixture
 without the load-balancing term, and a same-budget dense MLP baseline.
 Reports test MSE (soft and top-1 routing), routing purity per regime, expert
 usage shares, and param counts - all measured.
@@ -26,7 +26,7 @@ def train_moe(model: MoE, data, epochs: int, lr: float, aux: float) -> None:
 
 
 class DenseMLP:
-    """One-hidden-layer tanh MLP, hand-derived backprop, as a fair baseline."""
+    """One-hidden-layer tanh MLP, hand-derived backprop, as a parameter-budget-matched baseline."""
 
     def __init__(self, dim: int, hidden: int, rng: random.Random):
         self.W1 = [[rng.gauss(0, 0.2) for _ in range(dim)] for _ in range(hidden)]
