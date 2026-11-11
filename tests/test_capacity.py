@@ -130,11 +130,17 @@ class Capacity(unittest.TestCase):
             self.assertEqual(cli('audit',Path(d)/'missing').returncode,2)
 
     def test_original_frozen_gate_bridge(self):
+        import math
         from moelab.routes import _inference
         frozen=json.loads((ROOT/'moelab/route_data/frozen.json').read_text())
+        bridge=json.loads((ROOT/'moelab/route_data/capacity-bridge.json').read_text())
+        self.assertEqual(bridge['row_positions'],list(range(6)))
         for model in frozen['models']:
             item=next(i for i in FIXTURES if i['id']=='frozen_'+model)
             for i,row in enumerate(frozen['splits']['original_train'][:6]):
-                native=_inference(frozen['models'][model],row['x']);gate=list(map(F,native['probabilities']));z=sum(gate)
-                self.assertEqual(item['input']['probabilities'][i],[str(x/z)for x in gate]);self.assertEqual(item['input']['expert_values'][i],[str(F(x))for x in native['experts']])
-                self.assertEqual(item['input']['targets'][i],str(F(row['target'])))
+                native=_inference(frozen['models'][model],row['x']);captured=bridge['models'][model][i]
+                for name,field in [('probabilities','probabilities'),('expert_values','experts')]:
+                    for a,b in zip(captured[name],native[field]):self.assertTrue(math.isclose(a,b,rel_tol=1e-12,abs_tol=1e-12),(model,i,name,a,b))
+                gate=list(map(F,captured['probabilities']));z=sum(gate)
+                self.assertEqual(item['input']['probabilities'][i],[str(x/z)for x in gate]);self.assertEqual(item['input']['expert_values'][i],[str(F(x))for x in captured['expert_values']])
+                self.assertEqual(item['input']['targets'][i],str(F(row['target'])));self.assertEqual(captured['target'],row['target'])
