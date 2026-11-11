@@ -2,6 +2,22 @@
 
 A small mixture-of-experts model written in pure Python. A linear router chooses one linear expert and keeps its gate probability in the prediction. Training uses hand-derived gradients, checked by finite differences, and a trained dense baseline on synthetic regime-switching data. No ML frameworks.
 
+## v0.4: one table, worst regret
+
+[Open the gate-table regret inspector](https://midya8.github.io/moelab/gate.html) · [Exact objective, schema, sources and limits](GATE-REGRET.md)
+
+Freeze a nominally optimal capacity dispatch. Supply explicit lower and upper probability bounds, then find the largest gate-mass gap against another maximum-coverage dispatch on one normalized table. The report includes the attaining table and challenger, every row primal/dual witness, all capacity states and tied challenger counts. A separate bound keeps both independently optimized tables visible instead of pretending they jointly attain regret.
+
+On one control, row normalization cuts the tempting independent-box contrast from `1/5` to an attainable `1/10`. On another, eligibility forces the same route: true regret is zero while separate best/worst extrema still give `1/5`. Ten declared controls, exact native sorted fill, independent vertex/assignment verification and a browser BigInt vertex engine make each distinction inspectable. Complete input and report downloads replay natively.
+
+```bash
+python -m moelab.gate_cli audit examples/gate-input.json > /tmp/gate-report.json
+python -m moelab.gate_cli verify examples/gate-input.json /tmp/gate-report.json
+bash examples/verify_gate_wheel.sh
+```
+
+These are assumed gate bounds, not learned uncertainty or an input/weight attack. This evaluates one reference, not a minimax-regret policy, task quality or model robustness. The previous 53 Python/nine Node tests remain; the full suite has 72 Python/14 Node and actual-Chrome tests. Original training, data, checkpoints and numerical results stay unchanged.
+
 ## v0.3: the batch decides
 
 [Open the exact capacity inspector](https://midya8.github.io/moelab/capacity.html) · [Proof, complete schema, sources and limits](CAPACITY.md)
@@ -18,7 +34,7 @@ python -m moelab.capacity_cli verify examples/capacity-input.json /tmp/capacity.
 bash examples/verify_capacity_wheel.sh
 ```
 
-Finite supplied tables only, at most seven tokens/four experts. Not a new routing algorithm, production router, gradient method, training gain, GPU speed claim or implementation of Switch, BASE or Expert Choice. The original 39 Python/five Node tests are preserved; the complete suite now has 53 Python/nine Node tests.
+Finite supplied tables only, at most seven tokens/four experts. Not a new routing algorithm, production router, gradient method, training gain, GPU speed claim or implementation of Switch, BASE or Expert Choice. The original 39 Python/five Node tests are preserved; that capacity release has 53 Python/nine Node tests.
 
 ## Training and routing
 
@@ -67,7 +83,7 @@ python -m unittest discover -s tests
 bash examples/demo.sh
 ```
 
-53 Python tests, plus nine substantive Node/Chrome tests for the route and capacity inspectors. No Python runtime dependencies beyond Python 3.10+.
+72 Python tests, plus 14 substantive Node/Chrome tests for the route, capacity and gate-regret inspectors. No Python runtime dependencies beyond Python 3.10+.
 
 ## Limitations
 
