@@ -24,13 +24,12 @@ def build():
       'zero_gate_dispatch':p([[1,0],[1,0]],[1,1]),
       'empty_eligibility':p([['1/2','1/2'],['1/3','2/3']],[2,2],[[],[0,1]]),
     }
-    frozen=json.loads((ROOT/'moelab/route_data/frozen.json').read_text())
-    from moelab.routes import _inference
-    for name,model in frozen['models'].items():
-        rows=frozen['splits']['original_train'][:6];q=[];v=[];t=[]
+    bridge=json.loads((ROOT/'moelab/route_data/capacity-bridge.json').read_text())
+    for name,rows in bridge['models'].items():
+        q=[];v=[];t=[]
         for row in rows:
-            r=_inference(model,row['x']);gate=list(map(F,r['probabilities']));den=sum(gate)
-            q.append([str(x/den)for x in gate]);v.append([str(F(x))for x in r['experts']]);t.append(str(F(row['target'])))
+            gate=list(map(F,row['probabilities']));den=sum(gate)
+            q.append([str(x/den)for x in gate]);v.append([str(F(x))for x in row['expert_values']]);t.append(str(F(row['target'])))
         f['frozen_'+name]=p(q,[2]*4,v=v,t=t)
     return [{'id':name,'input':payload,'report':audit(payload)}for name,payload in f.items()]
 
