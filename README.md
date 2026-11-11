@@ -2,6 +2,24 @@
 
 Mixture-of-experts from scratch: a sparse router and per-expert models trained with hand-derived, finite-difference-verified gradients, measured against a trained dense baseline on a regime-switching fixture. No ML frameworks.
 
+## v0.3: the batch decides
+
+[Open the exact capacity inspector](https://midya8.github.io/moelab/capacity.html) · [Proof, complete schema, sources and limits](CAPACITY.md)
+
+A separate exact-rational capacity allocator retains every optimal dispatch, complete capacity-state witnesses, assignment counts and all eligibility bottlenecks. The objective is explicit: first dispatch as many tokens as possible, then retain the greatest sum of original gate probabilities. Four full-strength greedy controls share the same capacities and eligibility.
+
+Confidence-priority best-available routing retains `51/100` gate mass on one control; global dispatch retains `49/50`. But optimizing routing is not optimizing predictions: another control has two equally optimal dispatches with scalar-update MSE **0 to 25**, both attained and independently checked. Excess total capacity can still force drops when eligible slots are concentrated. A skipped update never deletes the token.
+
+The native producer uses a capacity-state dynamic program; the independent verifier enumerates every feasible assignment and never imports it. A separate BigInt inspector matches every report leaf. Fourteen controls include three explicitly normalized bridges from the original frozen models. New tests check 225 probability pairs, 1,024 eligibility/capacity cases, tiny gates, every-leaf tampering, permutation invariants, exact task-error extrema, original-data parity and actual-browser downloads. Original training, data, checkpoints and earlier results remain unchanged.
+
+```bash
+python -m moelab.capacity_cli audit examples/capacity-input.json > /tmp/capacity.json
+python -m moelab.capacity_cli verify examples/capacity-input.json /tmp/capacity.json
+bash examples/verify_capacity_wheel.sh
+```
+
+Finite supplied tables only, at most seven tokens/four experts. Not a new routing algorithm, production router, gradient method, training gain, GPU speed claim or implementation of Switch, BASE or Expert Choice. The original 39 Python/five Node tests are preserved; the complete suite now has 53 Python/nine Node tests.
+
 ## What it does
 
 - Builds a regime-switching fixture: four input regimes, each with its own linear input-target map, so the sign and scale of the relationship flips per regime. A single *linear* map cannot represent it by construction (the sign and scale of the relationship flip per regime); whether a nonlinear dense model closes the gap is an empirical question, answered by the measured baseline below.
@@ -41,7 +59,7 @@ python -m unittest discover -s tests
 bash examples/demo.sh
 ```
 
-39 Python tests, plus five substantive Node/Chrome tests for the route inspector. No Python runtime dependencies beyond Python 3.10+.
+53 Python tests, plus nine substantive Node/Chrome tests for the route and capacity inspectors. No Python runtime dependencies beyond Python 3.10+.
 
 ## Limitations
 
