@@ -1,0 +1,16 @@
+header h1 {max-width: 900px;line-height: .96;letter-spacing: -.055em;}
+#regret {color: #a8391c;}
+#allocation td {min-width: 150px;vertical-align: top;}
+#allocation small {display: block;line-height: 1.55;color: #68665e;}
+.gate-value {display: block;font-size: 1.18rem;margin: .4rem 0;font-weight: 650;}
+.route-badges {min-height: 1.3rem;display:flex;gap:5px;}
+.route-badges span {border:1px solid #938771;padding:1px 7px;border-radius:3px;font-size:.7rem;}
+.route-badges .challenger {background:#2d5145;color:#fff;border-color:#2d5145;}
+.interval-track {height:8px;background:#e7e1d5;position:relative;margin:.7rem 2px .4rem;}
+.interval-track .range {position:absolute;height:8px;background:#c4b799;}
+.interval-track .mark {position:absolute;height:14px;width:3px;top:-3px;background:#a8391c;transform:translateX(-1px);}
+#allocation td.ineligible {opacity:.8;}
+#allocation .ineligible small {font-style:italic;}
+.quality p {max-width:80ch;}
+#support-explain,#dual-explain {overflow-wrap:anywhere;}
+#input {width:100%;box-sizing:border-box;}

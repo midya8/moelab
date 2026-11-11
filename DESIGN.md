@@ -44,6 +44,11 @@ to one expert.
   enumerates assignments. [CAPACITY.md](CAPACITY.md) defines the objective,
   bottleneck witnesses and task-error limits. This allocator does not train or
   alter the original model.
+- `gate_regret.py` evaluates worst retained-mass regret for one fixed nominal
+  dispatch under supplied normalized probability bounds. `gate_verify.py`
+  independently enumerates vertices and assignments. [GATE-REGRET.md](GATE-REGRET.md)
+  defines the assumptions, one-table quantifiers, dual witnesses and loose
+  separate-table bound. It neither trains nor calibrates a model.
 - `eval.py` reports the trained sparse/soft errors, dense baseline, per-regime
   routing purity, usage shares and aux/no-aux results. `cli.py` exposes the
   evaluation and regression gates. Gates pin the mixture's behavior, not a
