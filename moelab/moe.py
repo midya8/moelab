@@ -1,22 +1,24 @@
-"""Soft-gated mixture-of-experts with hand-derived gradients.
+"""Retained-probability top-1 mixture with hand-derived gradients.
 
-y(x) = sum_e g_e(x) * (w_e . x + b_e),   g = softmax(R x + c)
+For gates g = softmax(R x + c) and expert outputs h_e = W_e . x + b_e,
+the trained prediction is y = g_e h_e, where e is the lowest-index maximum
+gate. predict_soft() separately evaluates sum_k g_k h_k; it is not the
+training objective.
 
-Gradients (derived by hand, finite-difference verified in tests), for
-L = (y - t)^2, s = 2(y - t):
+Hold the selected branch e fixed. For L = (y - t)^2 and s = 2(y - t):
 
-  dL/dw_e   = s * g_e * x
-  dL/db_e   = s * g_e
-  dL/dR_ej  = s * y_e * g_e * (x_j - sum_k g_k ... ) via the softmax Jacobian:
-              dy/dR_ej = y_e * g_e * x_j - g_e * x_j * sum_k g_k y_k
-                       = g_e * x_j * (y_e - y)
-  dL/dc_e   = g_e * (y_e - y) * s
+  dL/dW_ej = s g_e x_j,   dL/db_e = s g_e
+  dL/dz_k  = s h_e g_e (delta_ek - g_k),   z = R x + c
+  dL/dR_kj = (dL/dz_k) x_j,   dL/dc_k = dL/dz_k
 
-so dL/dR_ej = s * g_e * (y_e - y) * x_j and dL/dc_e = s * g_e * (y_e - y).
-The load-balancing auxiliary loss penalizes the squared L2 of mean gate
-probabilities: aux = E * sum_e (mean g_e)^2, minimized when every expert gets
-an equal share; its gradient follows the same chain rule and is included in
-training but never in reported task loss.
+Other experts receive no task-loss update. These are ordinary derivatives
+inside a routing cell, not differentiation through argmax or a soft backward
+surrogate. Finite differences are checked away from routing boundaries.
+
+Each training row adds aux_weight * A, with A = E sum_k g_k^2. If
+S2 = sum_k g_k^2, then dA/dz_k = 2 E g_k (g_k - S2). Training uses
+per-example updates; this is neither the squared batch-mean gate penalty nor
+Switch's batch-frequency/probability statistic. Reported task MSE excludes A.
 """
 
 from __future__ import annotations
@@ -64,9 +66,8 @@ class MoE:
         return g.index(max(g))
 
     def train_step(self, x: List[float], t: float, lr: float, aux_weight: float) -> float:
-        # Switch-style sparse objective: y = g_top * expert_top(x). The argmax
-        # selection is treated as constant (straight-through on the choice);
-        # gradients flow through the gate probability and the chosen expert.
+        # Hold the chosen route fixed. Differentiate its retained gate
+        # probability and expert output, not the discrete argmax choice.
         g = self.gates(x)
         e = g.index(max(g))
         ge = g[e]

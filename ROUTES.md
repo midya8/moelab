@@ -46,14 +46,14 @@ The original inference separately rounds path arithmetic, dot products, exponent
 
 ## Three different balance statistics
 
-For N rows and E experts, let P_i = mean_n g_ni and f_i = count(owner_n = i)/N. The original implementation's per-example penalty averages E sum_i g_ni^2. Its old module docstring described E sum_i P_i^2 instead. These are not equal:
+For N rows and E experts, let P_i = mean_n g_ni and f_i = count(owner_n = i)/N. The original implementation's per-example penalty averages E sum_i g_ni^2. An earlier module docstring described E sum_i P_i^2 instead. That docstring is now corrected; the training arithmetic is unchanged. These are not equal:
 
 ```
 mean_n [E sum_i g_ni^2] - E sum_i P_i^2
     = E sum_i mean_n [(g_ni - P_i)^2]
 ```
 
-Switch's batch-frequency/probability statistic is E sum_i f_i P_i. It is yet a third expression. The UI reports each one, each row's probabilities, counts, shares and original targets. The original training loop is not changed to match its old docstring or the paper. Uniform ties give all three values equal to one while every row dispatches to expert 0. A low penalty is not a traffic guarantee. Sharp balanced gates can give a per-example penalty near E while the other two equal one.
+Switch's batch-frequency/probability statistic is E sum_i f_i P_i. It is yet a third expression. The UI reports each one, each row's probabilities, counts, shares and original targets. The training loop is not changed to match the earlier docstring or the paper. Uniform ties give all three values equal to one while every row dispatches to expert 0. A low penalty is not a traffic guarantee. Sharp balanced gates can give a per-example penalty near E while the other two equal one.
 
 Targets affect only descriptive evaluation errors on the original rows. There is no target for an arbitrary interpolation. An input path is not a robustness radius, causal experiment, generalization test or inference-cost benchmark. No token capacity, dropping, transformer, serving load or measured speed is implemented.
 

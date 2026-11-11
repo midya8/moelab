@@ -1,6 +1,6 @@
 # MoeLab
 
-Mixture-of-experts from scratch: a sparse router and per-expert models trained with hand-derived, finite-difference-verified gradients, measured against a trained dense baseline on a regime-switching fixture. No ML frameworks.
+A small mixture-of-experts model written in pure Python. A linear router chooses one linear expert and keeps its gate probability in the prediction. Training uses hand-derived gradients, checked by finite differences, and a trained dense baseline on synthetic regime-switching data. No ML frameworks.
 
 ## v0.3: the batch decides
 
@@ -20,11 +20,14 @@ bash examples/verify_capacity_wheel.sh
 
 Finite supplied tables only, at most seven tokens/four experts. Not a new routing algorithm, production router, gradient method, training gain, GPU speed claim or implementation of Switch, BASE or Expert Choice. The original 39 Python/five Node tests are preserved; the complete suite now has 53 Python/nine Node tests.
 
-## What it does
+## Training and routing
 
-- Builds a regime-switching fixture: four input regimes, each with its own linear input-target map, so the sign and scale of the relationship flips per regime. A single *linear* map cannot represent it by construction (the sign and scale of the relationship flip per regime); whether a nonlinear dense model closes the gap is an empirical question, answered by the measured baseline below.
-- Trains a Switch-style sparse mixture: the router softmax scores each expert, the top expert answers, and the prediction is the gate probability times that expert's output. The selected route is held fixed during differentiation; gradients flow through the gate probability and chosen expert on that branch, derived by hand and finite-difference verified away from routing boundaries.
-- Measures routing, not just fit: per-regime routing purity, expert usage shares, a same-budget dense MLP baseline, and the soft-vs-sparse evaluation gap.
+Four input regimes use different linear target maps. A single linear map cannot
+represent this construction; a nonlinear dense model is compared empirically.
+The sparse model predicts `g_top * expert_top(x)`. Training holds the selected
+route fixed and differentiates its gate probability and expert output. This is
+not a straight-through estimator for argmax. [DESIGN.md](DESIGN.md) gives the
+actual task and per-example auxiliary-loss equations.
 
 ## Measured results (checked-in fixture, pinned in tests)
 
@@ -36,12 +39,17 @@ Routing purity (worst regime): 1.0000
 Expert usage shares: [0.25, 0.25, 0.25, 0.25]
 ```
 
-What the fixture shows, stated plainly:
+The mixture has lower test error than this one-hidden-layer tanh baseline under
+the recorded optimizer budget, despite having fewer parameters. A wider or
+better-tuned dense model may close the gap. CI pins the mixture's own MSE,
+purity and usage as regression checks; it does not require the baseline to lose.
 
-- On this configuration the mixture has lower measured error: 0.0303 vs 0.1853 test MSE against a one-hidden-layer tanh MLP with slightly *more* parameters (136 vs 145) trained with the same optimizer budget. That is a measured trained-baseline comparison, not a proof that no dense model can fit this data - a wider or better-tuned MLP may close the gap, and if it does the honest outcome is to report the new numbers. The CI gates pin the mixture's own fit (MSE, routing purity, usage shares) as deterministic regression checks; they do not gate on the baseline staying weak.
-- The router specializes: worst-regime routing purity is 1.0000 - every regime routes to exactly one expert on the test set.
-- Soft evaluation is worse than sparse (0.6291 vs 0.0303): the training objective is sparse, and the soft evaluation has higher measured error on this fixture. This comparison does not isolate the cause. The suite pins the inversion so the number stays measured.
-- Honest aux-loss note: on this symmetric fixture the load-balancing term is not load-bearing - regimes self-balance (max share 0.25 with and without it) and dropping it fits slightly better (0.0015 vs 0.0303). That is the opposite of the usual sales pitch for auxiliary losses, and it is what this fixture measured; the standard motivation is imbalanced expert traffic in production serving; that motivation is untested here, since this fixture is symmetric by construction.
+Every test regime routes to one expert. Soft evaluation has higher error than
+the trained sparse objective, but that comparison does not isolate a cause.
+The symmetric fixture also self-balances without the auxiliary penalty:
+maximum expert share is 0.25 with and without it, and no-aux MSE is 0.0015,
+better than 0.0303 with the penalty. This does not test the penalty's value
+under imbalanced traffic.
 
 ## CLI
 
@@ -63,7 +71,7 @@ bash examples/demo.sh
 
 ## Limitations
 
-Experts and the router are linear, the fixture is synthetic and small, and routing is top-1 with fixed-branch derivatives - real MoE layers sit inside transformers and route tokens, not whole examples. The mechanics that transfer are the ones measured here: sparse gating with gate-probability weighting, specialization as a measurable property, and load balance as a measured distribution rather than an assumption.
+Experts and the router are linear; the fixture is small and synthetic. This model routes whole examples, not transformer tokens. Its measured fit, routing purity and usage do not establish production quality, balanced traffic or a general advantage over dense models.
 
 ## License
 
@@ -85,4 +93,4 @@ node --test tests/test_routes.cjs tests/test_routes_browser.cjs
 bash examples/verify_wheel.sh
 ```
 
-The no-aux report regenerates to **0.0014970307791088836**, rounding to **0.0015**. The previous README's 0.0010 was stale text, corrected here without changing training or results. The old model docstring's squared batch-mean auxiliary formula also differs from its actual per-example implementation; both and the distinct Switch statistic are explained in ROUTES.md. No production traffic, robustness or causal mechanism claim follows from this synthetic fixture.
+The frozen no-aux report is **0.0014970307791088836**, rounding to **0.0015**. An earlier README said 0.0010; training and results were not changed to correct that text. The module and test docstrings now describe the actual fixed-branch objective and per-example auxiliary penalty. [ROUTES.md](ROUTES.md) keeps the distinction from squared batch-mean gates and the Switch statistic explicit. No production-traffic, robustness or causal-mechanism claim follows from this fixture.
